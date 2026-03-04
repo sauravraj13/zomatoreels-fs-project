@@ -4,20 +4,20 @@
 console.log('server.js start'); // debug
 
 try {
-    const app = require('./src/app');
-    console.log('required ./src/app ->', !!app, 'type:', typeof app);
-    
-    if (!app || typeof app.listen !== 'function') {
-        console.error('app is not an express app (no listen).');
-        process.exit(1);
-    }
+    const connectDB = require('./src/db/db');
 
-    const server = app.listen(3000, () => {
-        console.log("server is running on port 3000");
-    });
-
-    // debug: show that server handle exists
-    console.log('server listening handle created:', !!server);
+    (async () => {
+        try {
+            await connectDB();
+            const app = require('./src/app');
+            const server = app.listen(3000, () => {
+                console.log('server is running on port 3000');
+            });
+        } catch (err) {
+            console.error('failed to start server:', err);
+            process.exit(1);
+        }
+    })();
 
 } catch (err) {
     console.error('error while starting server:', err);
@@ -33,4 +33,3 @@ process.on('unhandledRejection', (reason) => {
 process.on('exit', (code) => {
     console.log('process exit code', code);
 });
-// ...existing code...
